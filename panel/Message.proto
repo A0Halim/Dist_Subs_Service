@@ -12,4 +12,5 @@ enum Demand {
 enum Response {
     YEP = 0;
     NOP = 1;
+    NULL = 2;
 }

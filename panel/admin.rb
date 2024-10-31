@@ -56,7 +56,7 @@ class Server
       receivedCpcty = Capacity.decode(receivedCapacity)
       puts "Alindi: #{receivedCpcty.serverX_status}, #{receivedCpcty.timestamp}"
 
-      #Python'a capacity nesnesi gönderimi
+      #Python'a capacity nesnesi gönderimi(Geçici olarak burda)
       cpctyPlotter = Capacity.new(serverX_status: receivedCpcty.serverX_status, timestamp: receivedCpcty.timestamp)
       plotterData = cpctyPlotter.to_proto
       recv.write([plotterData.size].pack("N") + plotterData)

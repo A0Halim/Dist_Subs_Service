@@ -1,103 +1,108 @@
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class Server2 {
-    private static final int PORT = 5002; // Server2'nin portu
+    private static final int PORT = 5002; // Server2 icin port numarasi
+    private static final String HOST = "localhost";
+    
+    
+    private static final int PORT1 = 5001; // Server1'in portu
+    private static final int PORT3 = 5003; // Server3'un portu
 
-    public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(PORT);
-        System.out.println("Server1 is running on port " + PORT);
-
-        new PingThread("localhost", 5001).start(); // server1'i pingler
-        new PingThread("localhost", 5003).start(); // server3'u pingler 
-
-
-        // Gelen client baglantilarini surekli dinler 
-        try {
-            while (true) {
-                // eger client gelirse yeni bir thread olusturur
-                new ClientHandler(serverSocket.accept()).start();
-            }
-        } finally {
-            serverSocket.close();
-        }
+    public static void main(String[] args) {
+        sunucuBaslat();
+        digerSunucularaBaglan();
     }
 
-    // Her yeni client icin bir thread olusturan sinif 
-    private static class ClientHandler extends Thread {
-        private Socket clientSocket;
-
-        // socket parametresi sunucuya baglanan client ile iletisimi saglar
-        public ClientHandler(Socket socket) {
-            this.clientSocket = socket;
-        }
-
-        public void run() {
-            // buffer --> clientten gelen mesaj alinir
-            BufferedReader in = null;
-            String message = null;
-            // PrintWritter ile istemciye yanit gonderilir 
-            PrintWriter out = null;
-            try {
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
-
-                message = in.readLine();
-
-                // cliente geri mesaj dondurur
-                out.println("55 TAMM");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            System.out.println("Received message on Server2("+currentThread().getName() +") from client: " + message);
-
-        }
-    }
-
-    // Bu sınıf, belirtilen sunucuyu belirli aralıklarla ping yapar ve sunucunun erişilebilir olup olmadığını kontrol eder
-    private static class PingThread extends Thread {
-        // Pinglenecek sunucunun bilgileri
-        private String host;
-        private int port;
-
-        public PingThread(String host, int port) {
-            this.host = host;
-            this.port = port;
-        }
-
-        public void run() {
-
-            try {
+    // Sunucu dinleme islemini thread ile yapiyoruz
+    private static void sunucuBaslat() {
+        new Thread(() -> {
+            try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+                System.out.println("Server2 dinliyor! Port: " + PORT);
+                
+                // Surekli baglanti gelene kadar dinle
                 while (true) {
-                    // Sonsuz bir döngüde Socket ile belirtilen host ve porta bağlanmayı dener.
-                    try (Socket socket = new Socket(host, port)) {
-                        System.out.println("Pinged " + host + " on port " + port);
-                    } catch (IOException e) {
-                        System.out.println("Ping to " + host + " on port " + port + " failed, retrying...");
-                    }
-
-                    try {
-                        // her baglanmayi denedikten sonra 10 saniye bekler
-                        Thread.sleep(10000);
-                    } catch (InterruptedException ie) {
-                        System.out.println("Ping thread interrupted: " + ie.getMessage());
-                        break;
-                    }
+                    Socket clientSocket = serverSocket.accept();
+                    System.out.println("Bir baglanti kuruldu: " + clientSocket.getRemoteSocketAddress());
+                    // istemci icin idareci olarak thread olusturuyoruz
+                    new Thread(() -> handleClient(clientSocket)).start();
                 }
-            } catch (Exception e) {
-                System.out.println("Unexpected error: " + e.getMessage());
+            } 
+            catch (IOException e) {
+                System.err.println("Server2, dinlerken hata olustu: " + e.getMessage());
+                e.printStackTrace();
             }
+        }).start();
+    }
 
+    // Diger sunuculara baglanma islemi
+    private static void digerSunucularaBaglan() {
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                sunucuyaBaglan(HOST, PORT1); // server2 --> server1
+                sunucuyaBaglan(HOST, PORT3); // server2 --> server3
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                System.err.println("Thread durduruldu: " + ie.getMessage());
+            } catch (IOException e) {
+                System.err.println("Baglanilamadi! : " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
+    // Belirli bir sunucuya baglanma islemi
+    private static void sunucuyaBaglan(String host, int port) throws IOException {
+        boolean connected = false;
+        int attempts = 0;
+        
+        int deneme_sayisi = 10;
+        // diger sunuculara baglanilabiliyor mu? (aktifler mi) degillerse 10 kere baglanmayi dene
+        while (!connected && attempts < deneme_sayisi) {
+            attempts++;
+            try {
+                System.out.println("Baglanmaya calisiliyor: " + host + " Port: " + port);
+                try (Socket connection = new Socket(host, port)) {
+                    System.out.println("Server2 ve Server" + (port - 5001 + 1) + " baglantisi kuruldu.");
+                    connected = true;
+                    // baglandiktan sonra yapilacaklar buraya eklenecek !
+                    // (port - 5001 + 1) dinamik olarak server bilgisi vericek
+                    // ornek Server3 e baglansın 5003 - 5001 + 1 = 3
+                }
+            } catch (IOException e) {
+                System.err.println("Baglanilamadi! Port: " + port + ". Yeniden deniyor... (" + attempts + ")");
+                try {
+                    Thread.sleep(1000); // 1 saniye bekle
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Baglanti denemesi kesildi.", ie);
+                }
+            }
+        }
+        
+        if (!connected) {
+            throw new IOException("Server baska bir servere baglanamadi.");
         }
     }
-    
-    public static class AdminHandler extends Thread {
-    
-    }
 
-    public static class DistributedServerHandler extends Thread {
-
+    // clientin islerini yapan yer
+    private static void handleClient(Socket clientSocket) {
+        try {
+            // Burada istemciden gelen abone bilgilerini okuyup yazma islerini yapicaz 
+            // Örnegin, BufferedReader (veri okuma) ve PrintWriter (veri yazma)
+            System.out.println("istemci ile islem yapiliyor: " + clientSocket.getRemoteSocketAddress());
+        } 
+        catch (Exception e) {
+            System.err.println("istemci ile islem yapilirken hata olustu: " + e.getMessage());
+        } 
+        finally {
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                System.err.println("Socket kapatilamadi: " + e.getMessage());
+            }
+        }
     }
 }

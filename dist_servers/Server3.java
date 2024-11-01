@@ -58,7 +58,7 @@ public class Server3 {
         boolean connected = false;
         int attempts = 0;
         
-        int deneme_sayisi = 10;
+        int deneme_sayisi = 100;
         // diger sunuculara baglanilabiliyor mu? (aktifler mi) degillerse 10 kere baglanmayi dene
         while (!connected && attempts < deneme_sayisi) {
             attempts++;

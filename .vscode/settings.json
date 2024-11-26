@@ -1,9 +1,8 @@
 {
     "java.project.sourcePaths": [
-        ".",
-        "dist_servers"
+        "."
     ],
     "java.project.referencedLibraries": [
-        "dist_servers\\com\\google\\protobuf\\protobuf-java-4.28.3.jar"
+        "com\\google\\protobuf\\protobuf-java-4.28.3.jar"
     ]
 }

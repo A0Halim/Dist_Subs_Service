@@ -1,6 +1,12 @@
-import java.io.*;
+package Clients;
+
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
+
+import com.protos.Subscriber;
+import com.protos.DemandType;
 
 public class Client1 {
     private static final String HOST = "localhost";
@@ -24,6 +30,7 @@ public class Client1 {
                     .addAllInterests(Arrays.asList("Coding", "Science", "Art"))
                     .setIsOnline(true)
                     .setDemand(DemandType.SUBS)
+                    .setID(1)
                     .build();
 
             // Protobuf nesnesini serialize et ve sunucuya gönder

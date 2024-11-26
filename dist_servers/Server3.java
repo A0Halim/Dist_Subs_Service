@@ -1,98 +1,95 @@
+package dist_servers;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.protos.DemandType;
+import com.protos.Subscriber;
 
 public class Server3 {
     private static final int PORT = 5003; // Server3 icin port numarasi
     private static final String HOST = "localhost";
     
-    
-    private static final int PORT1 = 5001; // Server1'in portu
     private static final int PORT2 = 5002; // Server2'nin portu
+    private static final int PORT3 = 5001; // Server1'un portu
+    
+    private static Map<Long, Subscriber> cilentsData = new HashMap<Long, Subscriber>();
 
     public static void main(String[] args) {
         sunucuBaslat();
-        digerSunucularaBaglan();
     }
 
     // Sunucu dinleme islemini thread ile yapiyoruz
     private static void sunucuBaslat() {
-        new Thread(() -> {
-            try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-                System.out.println("Server3 dinliyor! Port: " + PORT);
-                
-                // Surekli baglanti gelene kadar dinle
-                while (true) {
-                    Socket clientSocket = serverSocket.accept();
-                    System.out.println("Bir baglanti kuruldu: " + clientSocket.getRemoteSocketAddress());
-                    // istemci icin idareci olarak thread olusturuyoruz
-                    new Thread(() -> handleClient(clientSocket)).start();
-                }
-            } 
-            catch (IOException e) {
-                System.err.println("Server3, dinlerken hata olustu: " + e.getMessage());
-                e.printStackTrace();
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Server1 baglaniyor! Port: " + PORT);
+            // Baglanti başariliysa diger sunuculara baglanir
+            digerSunucularaBaglan();
+            // İstek gelene kadar dinler
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Bir baglanti kuruldu: " + clientSocket.getRemoteSocketAddress());
+                // istemci icin idareci olarak thread olusturuyoruz
+                new Thread(() -> handleClient(clientSocket)).start();
             }
-        }).start();
+        } 
+        catch (IOException e) {
+            System.err.println("Server3, baglanirken hata olustu: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // Diger sunuculara baglanma islemi
     private static void digerSunucularaBaglan() {
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                sunucuyaBaglan(HOST, PORT1); // server3 --> server1
-                sunucuyaBaglan(HOST, PORT2); // server3 --> server2
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                System.err.println("Thread durduruldu: " + ie.getMessage());
-            } catch (IOException e) {
-                System.err.println("Baglanilamadi! : " + e.getMessage());
-                e.printStackTrace();
-            }
-        }).start();
+        sunucuyaBaglan(HOST, PORT2); // server3 --> server2
+        sunucuyaBaglan(HOST, PORT3); // server3 --> server1
     }
 
-    // Belirli bir sunucuya baglanma islemi
-    private static void sunucuyaBaglan(String host, int port) throws IOException {
-        boolean connected = false;
-        int attempts = 0;
-        
-        int deneme_sayisi = 100;
-        // diger sunuculara baglanilabiliyor mu? (aktifler mi) degillerse 10 kere baglanmayi dene
-        while (!connected && attempts < deneme_sayisi) {
-            attempts++;
+    /// Belirli bir sunucuya baglanma islemi
+    private static void sunucuyaBaglan(String host, int port){
+        new Thread(() -> {
             try {
-                System.out.println("Baglanmaya calisiliyor: " + host + " Port: " + port);
-                try (Socket connection = new Socket(host, port)) {
-                    System.out.println("Server3 ve Server" + (port - 5001 + 1) + " baglantisi kuruldu.");
-                    connected = true;
-                    // baglandiktan sonra yapilacaklar buraya eklenecek !
-                    // (port - 5001 + 1) dinamik olarak server bilgisi vericek
-                    // ornek Server3 e baglansın 5003 - 5001 + 1 = 3
-                }
+                Socket connection = new Socket(host, port);
+                System.out.println("Server3 ve Server" + (port - 5000) + " baglantisi kuruldu.");
+                //baglanti sonrsi işlemler
+            } catch (UnknownHostException e) {
+                System.out.println("Bilinmeyen host." + port + " portu icin baglanma denemesi sonlandi");
+                e.printStackTrace();
             } catch (IOException e) {
-                System.err.println("Baglanilamadi! Port: " + port + ". Yeniden deniyor... (" + attempts + ")");
+                System.out.println(port + " portu ile baglanti kurulanmadi");
                 try {
-                    Thread.sleep(1000); // 1 saniye bekle
-                } catch (InterruptedException ie) {
+                    Thread.sleep(3000);
+                    sunucuyaBaglan(host, port);
+                } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
-                    throw new IOException("Baglanti denemesi kesildi.", ie);
+                    System.out.println(port + " portu icin baglanti denemesi kesildi.");
                 }
             }
-        }
-        
-        if (!connected) {
-            throw new IOException("Server baska bir servere baglanamadi.");
-        }
+        }).start();
     }
 
     // clientin islerini yapan yer
     private static void handleClient(Socket clientSocket) {
         try {
-            // Burada istemciden gelen abone bilgilerini okuyup yazma islerini yapicaz 
-            // Örnegin, BufferedReader (veri okuma) ve PrintWriter (veri yazma)
             System.out.println("istemci ile islem yapiliyor: " + clientSocket.getRemoteSocketAddress());
+            Subscriber sub = Subscriber.parseFrom(clientSocket.getInputStream());
+            if(cilentsData.containsKey(sub.getID()))
+            {
+                if(sub.getDemand() == DemandType.DEL)
+                {
+                    Long subId = sub.getID();
+                    cilentsData.remove(subId);
+                    System.out.println("Abone basariyla silindi. Abone ID : " + subId);
+                }
+            }else if(sub.getDemand() == DemandType.SUBS)
+            {
+                cilentsData.put(sub.getID(), sub);
+                System.out.println("Basariyla Abone olundu. Abone ID : "+ sub.getID());
+            }
         } 
         catch (Exception e) {
             System.err.println("istemci ile islem yapilirken hata olustu: " + e.getMessage());

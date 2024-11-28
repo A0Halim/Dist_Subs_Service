@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import com.protos.DemandType;
 import com.protos.Subscriber;
@@ -18,18 +19,32 @@ public class Client2 {
 
     public static void connectionOfServer(String host, int port) {
         try (Socket socket = new Socket(host, port);
-             OutputStream outputStream = socket.getOutputStream()) {
+             OutputStream outputStream = socket.getOutputStream();
+             Scanner oku = new Scanner(System.in);) {
 
             System.out.println("Sunucu2'ye Basariyla Baglanildi...");
 
-            // Subscriber oluştur
+            // Subscriber oluştur ve talimati kullanicidan al
+            System.out.println("Lutfen talimati giriniz (Sub/Del)");
+            String talimat = oku.nextLine();
+            DemandType demand;
+            
+            if ("Sub".equals(talimat)) {
+                demand = DemandType.SUBS;
+            }
+            else if ("Del".equals(talimat)) {
+                demand = DemandType.DEL;
+            }
+            else {
+                throw new IllegalArgumentException("Hatali bir talimat girildi, istemciden cikiliyor....");
+            }
             Subscriber subscriber = Subscriber.newBuilder()
-                    .setNameSurname("Oğuz Dertli")
+                    .setNameSurname("Oguz Dertli")
                     .setStartDate(System.currentTimeMillis())
                     .setLastAccessed(System.currentTimeMillis())
                     .addAllInterests(Arrays.asList("Technology", "Hiking", "Outdoor"))
                     .setIsOnline(true)
-                    .setDemand(DemandType.SUBS)
+                    .setDemand(demand)
                     .setID(2)
                     .build();
 
@@ -37,9 +52,10 @@ public class Client2 {
             subscriber.writeTo(outputStream);
             outputStream.flush();
 
-            System.out.println("Abone bilgisi sunucuya gönderildi: " + subscriber);
+            System.out.println("Abone bilgisi sunucuya gönderildi:\n" + subscriber);
         } catch (IOException e) {
             System.err.println("Sunucu2'ye Baglanilamadi: " + e.getMessage());
         }
+        
     }
 }

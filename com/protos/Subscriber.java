@@ -999,6 +999,11 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
+    public Builder setDemand(Object value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setDemand'");
+    }
+
     // @@protoc_insertion_point(builder_scope:dist_servers.Subscriber)
   }
 

@@ -13,6 +13,7 @@ message Message {
 
 enum Demand {
     CPCTY = 0;
+    STRT = 1;
 }
 
 enum Response {

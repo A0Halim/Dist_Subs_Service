@@ -6,7 +6,7 @@ import threading
 from Capacity_pb2 import Capacity
 
 # TCP bağlantı ayarları
-PYTHON_PORT = 5005
+PYTHON_PORT = 5004
 MAX_DATA_POINTS = 20  # Grafikte tutulacak maksimum veri sayısı
 
 # Kapasite verileri için veri yapısı (Her sunucu için ayrı veri tutulur)

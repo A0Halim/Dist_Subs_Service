@@ -81,7 +81,7 @@ def server_connection_handler(java_connections, python_connection, fault_toleran
         puts "Java sunucu #{index + 1} çalışıyor."
         response = send_config(connection, fault_tolerance_level)
 
-        if response.response == "YEP"
+        if (message.response.to_s == "YEP")
           capacity = request_capacity(connection)
 
           if capacity

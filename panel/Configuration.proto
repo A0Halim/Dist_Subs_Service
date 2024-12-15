@@ -2,7 +2,7 @@ syntax = "proto3";
 
 message Configuration {
     int32 fault_tolerance_level = 1;
-    MethodType method_type = 2;
+    MethodType method = 2;
 }
 
 enum MethodType {

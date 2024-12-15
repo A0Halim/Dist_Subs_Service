@@ -7,10 +7,10 @@ message Message {
 
 enum Demand {
     CPCTY = 0;
+    STRT = 1;
 }
 
 enum Response {
     YEP = 0;
     NOP = 1;
-    NULL = 2;
 }

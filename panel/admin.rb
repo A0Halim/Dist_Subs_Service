@@ -5,7 +5,7 @@ require 'socket'
 
 CONF = "dist_subs.conf"
 SERVER_HOST = "localhost"
-JAVA_SERVER_PORTS = [5001, 5002, 5003]
+JAVA_SERVER_PORTS = [5001]#, 5002, 5003]
 PYTHON_SERVER_PORT = 5004
 
 def read_conf(conf)
@@ -37,9 +37,9 @@ end
 
 def send_config(socket, fault_tolerance_level)
   # Configuration nesnesini Java sunucusuna gönder
-  config = Configuration.new(fault_tolerance_level: fault_tolerance_level, method_type: MethodType::STRT)
+  config = Configuration.new(fault_tolerance_level: fault_tolerance_level, method: MethodType::STRT)
   config_proto = config.to_proto
-  socket.write([config_proto.size].pack("N") + config_proto)
+  socket.write([config_proto.bytesize].pack("N") + config_proto)
   puts "Config gönderildi"
 
   # Java sunucusundan yanıt mesajını al
@@ -55,7 +55,7 @@ def request_capacity(socket)
   # Java sunucusuna Capacity talebi gönder
   request = Message.new(demand: Demand::CPCTY, response: Response::NULL)
   request_proto = request.to_proto
-  socket.write([request_proto.size].pack("N") + request_proto)
+  socket.write([request_proto.bytesize].pack("N") + request_proto)
   puts "Capacity talebi gönderildi"
 
   # Java sunucusundan Capacity yanıtını al
@@ -81,7 +81,7 @@ def server_connection_handler(java_connections, python_connection, fault_toleran
         puts "Java sunucu #{index + 1} çalışıyor."
         response = send_config(connection, fault_tolerance_level)
 
-        if (message.response.to_s == "YEP")
+        if (response.response.to_s == "YEP")
           capacity = request_capacity(connection)
 
           if capacity

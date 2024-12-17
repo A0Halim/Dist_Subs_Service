@@ -1,61 +1,53 @@
 package Clients;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.util.Arrays;
-import java.util.Scanner;
-
-import com.protos.DemandType;
-import com.protos.Subscriber;
 
 public class Client3 {
-    private static final String HOST = "localhost";
-    private static final int PORT3 = 5003; // server3'unn portu
-
     public static void main(String[] args) {
-        connectionOfServer(HOST, PORT3);
-    }
-
-    public static void connectionOfServer(String host, int port) {
-        try (Socket socket = new Socket(host, port);
-             OutputStream outputStream = socket.getOutputStream();
-             Scanner oku = new Scanner(System.in);) {
-
-            System.out.println("Sunucu3'e Basariyla Baglanildi...");
-
-            // Subscriber oluştur ve talimati kullanicidan al 
-            System.out.println("Lutfen talimati giriniz (Sub/Del)");
-            String talimat = oku.nextLine();
-            DemandType demand;
-            
-            if ("Sub".equals(talimat)) {
-                demand = DemandType.SUBS;
-            }
-            else if ("Del".equals(talimat)) {
-                demand = DemandType.DEL;
-            }
-            else {
-                throw new IllegalArgumentException("Hatali bir talimat girildi, istemciden cikiliyor....");
-            }
-
-            Subscriber subscriber = Subscriber.newBuilder()
-                    .setNameSurname("Ahmet Duzgun")
-                    .setStartDate(System.currentTimeMillis())
-                    .setLastAccessed(System.currentTimeMillis())
-                    .addAllInterests(Arrays.asList("Technology", "Science", "Football"))
-                    .setIsOnline(true)
-                    .setDemand(demand)
-                    .setID(3)
-                    .build();
-
-            // Protobuf nesnesini serialize et ve sunucuya gönder
-            subscriber.writeTo(outputStream);
-            outputStream.flush();
-
-            System.out.println("Abone bilgisi sunucuya gönderildi:\n" + subscriber);
+        CreateClient client1 = new CreateClient(1, "foo bar", "sub", new String[]{"foo, bar"}, 3);
+        try {
+            client1.connectServer().sendRequest();
         } catch (IOException e) {
-            System.err.println("Sunucu3'e Baglanilamadi: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
+        
+// Neden bunu yaptım?
+// Burda yapmaya çalıştığım şey clientı bir standarta oturtmak
+// aşağdaki örnekte birden fazla clientı nasıl kolayca oluşturulduğnu görebilirsiniz
+//
+// CreateClient client1 = new CreateClient(1, "foo bar", "sub", new String[]{"foo, bar"}, 3);
+// CreateClient client2 = new CreateClient(2, "foo bar", "sub", new String[]{"foo, bar"}, 3);
+// CreateClient client3 = new CreateClient(3, "foo bar", "sub", new String[]{"foo, bar"}, 3);
+//
+// ayrıca bu şekilde client dosyalarını çalıştırmak için 3 tane dosya çalıştırmayada gerek yok
+// ör.
+// CreateClient client1 = new CreateClient(1, "foo bar", "sub", new String[]{"foo, bar"}, 1);   // server 1e bağlanır
+// CreateClient client2 = new CreateClient(2, "foo bar", "sub", new String[]{"foo, bar"}, 2);   // server 2ye bağlanır
+// CreateClient client3 = new CreateClient(3, "foo bar", "sub", new String[]{"foo, bar"}, 3);   // server 3e bağlanır
+//
+// Avantajları bunlada sınırlı değil eğer clientı tekrar kullanmak istersek burdada kolaylık sağlıyor
+// ör1.     client farklı bir istekte bulunuyor
+// CreateClient client1 = new CreateClient(1, "foo bar", "sub", new String[]{"foo, bar"}, 1);   // server 1e bağlanır
+// client1.demand = "del";
+// try {
+//     client1.sendRequest();
+// } catch (IOException e) {
+//     e.printStackTrace();
+// }
+//
+// ör2.      client farklı bir severa bağlanıyor
+// try {
+//     client1.disconnectServer();
+//     client1.serverNo = 2;
+//     client1.connectServer();
+// } catch (IOException e) {
+//     e.printStackTrace();
+// }
+//
+// vb.
+//
+// Ayrıca kod okunabilirliği artıyor yeni şeyler eklemek ve düzenlemek kolaylaşıyor
+// Yaptığım şey kısaca kodu OOPye uygun bir şekle getirmekti
+// Hatırlatma : bu kısmı silin

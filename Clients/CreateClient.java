@@ -31,7 +31,7 @@ public class CreateClient {
     }
 
     CreateClient(int Id, String nameSurname, String demand, String[] AllInterests) {
-        //server bilgisi verilmesse varsayılan değer olarak ilk sunucuya bağlanır
+        //server bilgisi verilmezse varsayılan değer olarak ilk sunucuya bağlanır
         this(Id, nameSurname, demand, AllInterests, 1);
     }
 

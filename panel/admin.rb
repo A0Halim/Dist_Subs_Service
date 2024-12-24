@@ -50,7 +50,7 @@ end
 
 def send_config(socket, fault_tolerance_level)
   begin
-    config = Configuration.new(fault_tolerance_level: fault_tolerance_level, method_type: MethodType::STRT)
+    config = Configuration.new(fault_tolerance_level: fault_tolerance_level, method: MethodType::STRT)
     config_proto = config.to_proto
     socket.write([config_proto.size].pack("N") + config_proto)
     puts "Config gönderildi"

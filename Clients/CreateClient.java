@@ -1,5 +1,6 @@
 package Clients;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Arrays;
@@ -48,7 +49,7 @@ public class CreateClient {
     
     public void sendRequest() throws IOException {
         Subscriber subscriber = generateSubRequest();
-        subscriber.writeTo(socket.getOutputStream());
+        send(subscriber);
         System.out.println("Abone bilgisi sunucuya gönderildi:\n" + subscriber);
     }
 
@@ -73,5 +74,13 @@ public class CreateClient {
             default:
                 throw new IllegalArgumentException("Geçersiz istek");
         }
+    }
+
+    private void send(Subscriber subscriber) throws IOException {
+        DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+        byte[] responseBytes = subscriber.toByteArray();
+        output.writeInt(responseBytes.length);
+        output.write(responseBytes);
+        output.flush();
     }
 }

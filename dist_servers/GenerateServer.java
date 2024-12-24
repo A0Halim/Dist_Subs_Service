@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ public class GenerateServer {
     private int port;
     private int toleranceLevel;
     private boolean isCanStart = false;
-    private boolean serverConnectionTime = true;
+    private volatile boolean serverConnectionTime = true;
 
     private ServerSocket serverSocket;
     private List<Socket> serverSockets;
@@ -63,10 +64,9 @@ public class GenerateServer {
         Thread thread = new Thread(() -> {acceptServerSocket();});
         thread.start();
         try {
-            thread.join(3000);
+            thread.join(2000);
             if (thread.isAlive()) {
                 serverConnectionTime = false;
-                System.out.println("Diğer serverlara bağlanma zamanı doldu, şimdi durduruluyor.");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -86,21 +86,30 @@ public class GenerateServer {
 
     private void acceptServerSocket() {
         try {
+            serverSocket.setSoTimeout(1000);
             while (serverConnectionTime) {
                 Socket socket = serverSocket.accept();
                 System.out.println("bir servera bağlandı");
-                new Thread(() -> {
-                    try {
-                        while (isCanStart) {
-                            Subscriber sub = Subscriber.parseFrom(get(socket));
-                            addClient(sub);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }).start();;
+                new Thread(() -> {handleServer(socket);}).start();
             }
         } catch (IOException e) {
+            try {
+                serverSocket.setSoTimeout(0);
+                System.out.println("Diğer serverlara bağlanma zamanı doldu.");
+            } catch (SocketException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+
+    private void handleServer(Socket socket) {
+        try {
+            while (isCanStart) {
+                Subscriber sub = Subscriber.parseFrom(get(socket));
+                addClient(sub);
+            }
+        } catch (IOException e) {
+            System.out.println("diğer serverlardan biri ile bağlant koptu");
             e.printStackTrace();
         }
     }
@@ -151,7 +160,8 @@ public class GenerateServer {
                         try {
                             handleClient(clientSocket);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            System.out.println("client patladı");
+                            //e.printStackTrace();
                         }
                     }).start();
                 } catch (Exception e) {
@@ -169,16 +179,17 @@ public class GenerateServer {
             send(message, clientSocket);
             System.out.println("mesaj gönderlidi");
             handleAdmin(clientSocket);
-        } catch (IOException e) {
-            System.out.println("Admin bağlantisi kurulamadi/kesildi. Server kapatiliyor");
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Admin bağlantisi kurulamadi/kesildi/sorun oluştu. Server kapatiliyor");
             System.exit(1);
         }
     }
     
-    private void handleAdmin(Socket clientSocket) throws InvalidProtocolBufferException, IOException {
+    private void handleAdmin(Socket clientSocket) throws InvalidProtocolBufferException, IOException, InterruptedException {
         Message message;
         if (isCanStart) {
             connectOtherServes(toleranceLevel);
+            Thread.sleep(1000);
             connectCilents();
             System.out.println("Admin isteklerine yanıt verilebilir durumda");
             while (isCanStart) {

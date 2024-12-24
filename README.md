@@ -1,43 +1,29 @@
-# Dağıtık Abonelik Sistemi (Distributed Subscriber Service)
-Bu dosya üzerinden projede gerçeklediklerinizi izah ediniz.
+# Sistem programlama ödevi
 
+## Nasıl başlatılmalı
 
-izah izah izah izah izah izah izah izah izah izah izah izah izah 
-izah izah izah izah izah izah izah izah izah izah izah izah izah 
+plotting ve serverlardır açıldıktan sonra admin açılmalıdır sonrasında clentları çalıştırabilirsiniz
 
+## Programda neler oluyor
 
-### plotter.py Solar System Exploration, 1950s – 1960s
+Admin öncelikle plottera bağlanmayı deniyor bağlanamassa bu işlem tekrarlanıyor. Bir sonraki işlemi serverlara bağlanmak oluyor. Serverlar başlama emrini aldıktan sonra birbirlerine bağlanmaları için 3 saniye müddet tanınmışır. Bu surenin sonunda bağlanabildi yada bağlanamadı diğer serverlara bağlanma denemesi kesilir. Server bağlantıları gerçekleştikten sonra serverlar, client istekleri işlenebilir ve admin isteklerine yanıt verebiri bir durumda oluyor. Clientlar tek bir istek göndericek şekilde tasarlanmışır farklı istekler için manuel düzenleme gereklidir. Tüm program çalışır durumdadır.
 
-- [ ] Mercury
-- [x] Venus
-- [x] Earth (Orbit/Moon)
-- [x] Mars
-- [ ] Jupiter
-- [ ] Saturn
-- [ ] Uranus
-- [ ] Neptune
-- [ ] Comet Haley
+## Olası sorunlar
 
-### admin.rb Solar System Exploration, 1950s – 1960s
+### Kütüphane sorunları
 
-- [ ] Mercury
-- [x] Venus
-- [x] Earth (Orbit/Moon)
-- [x] Mars
-- [ ] Jupiter
-- [ ] Saturn
-- [ ] Uranus
-- [ ] Neptune
-- [ ] Comet Haley
+Getekli tüm python ve ruby kütüphanelerinin yüklü olduğundan emin olun
 
-### ServerX.java Solar System Exploration, 1950s – 1960s
+### Java protobuf
 
-- [ ] Mercury
-- [x] Venus
-- [x] Earth (Orbit/Moon)
-- [x] Mars
-- [ ] Jupiter
-- [ ] Saturn
-- [ ] Uranus
-- [ ] Neptune
-- [ ] Comet Haley
+Bu sorunu aşmak için javanın protobuf kütüphanesi mauel kurulmuştur
+
+#### Kurulum rehberi
+
+![resimli anlatım](./images/Ekran%20görüntüsü%202024-12-24%20223038.png)
+
+Son olarak değişiklikleri uygulayın. Bu şekilde protobufı kullanmak için vs koddaki
+
+Run -> Start Debugging (F5) veya Run -> Run Without Debugging (Ctrl + F5)
+
+Yollarıyla serverları çalıştırabilirsiniz

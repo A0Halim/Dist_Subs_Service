@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.Random;
 
 import com.protos.DemandType;
 import com.protos.Subscriber;
@@ -23,6 +24,9 @@ public class CreateClient {
 
     private Socket socket;
 
+    //clientte port verilmezse varsayılan olarak rastgele sunucuya baglanilacak
+    private static final Random random = new Random();
+
     CreateClient(int Id, String nameSurname, String demand, String[] AllInterests, int serverNo) {
         this.Id = Id;
         this.nameSurname = nameSurname;
@@ -32,8 +36,8 @@ public class CreateClient {
     }
 
     CreateClient(int Id, String nameSurname, String demand, String[] AllInterests) {
-        //server bilgisi verilmesse varsayılan değer olarak ilk sunucuya bağlanır
-        this(Id, nameSurname, demand, AllInterests, 1);
+        //server bilgisi verilmezse varsayılan değer olarak rastgele sunucuya baglanilacak
+        this(Id, nameSurname, demand, AllInterests, random.nextInt(PORTS.length) + 1);
     }
 
     public CreateClient connectServer() throws IOException {
@@ -43,8 +47,17 @@ public class CreateClient {
     }
 
     public void disconnectServer() throws IOException {
-        socket.close();
-        socket = null;
+        // soketleri kontrollü kapatma (daha güvenli)
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+                System.out.println("Sunucudan basariyla cikis yapildi...");
+            }
+        } catch (IOException e) {
+            System.err.println("Bağlantiyi kapatma sirasinda bir hata oluştu...");
+        } finally {
+            socket = null;
+        }
     }
     
     public void sendRequest() throws IOException {

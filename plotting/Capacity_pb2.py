@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0e\x43\x61pacity.proto\"5\n\x08\x43\x61pacity\x12\x16\n\x0eserverX_status\x18\x01 \x01(\x05\x12\x11\n\ttimestamp\x18\x02 \x01(\x03\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0e\x43\x61pacity.proto\"H\n\x08\x43\x61pacity\x12\x11\n\tserver_id\x18\x01 \x01(\x05\x12\x16\n\x0eserverX_status\x18\x02 \x01(\x05\x12\x11\n\ttimestamp\x18\x03 \x01(\x03\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,5 +32,5 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'Capacity_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_CAPACITY']._serialized_start=18
-  _globals['_CAPACITY']._serialized_end=71
+  _globals['_CAPACITY']._serialized_end=90
 # @@protoc_insertion_point(module_scope)

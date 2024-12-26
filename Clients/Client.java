@@ -7,7 +7,7 @@ public class Client {
     public static void main(String[] args) {
         Random random = new Random();
         int rastgele_port = random.nextInt(3) + 1;
-        CreateClient client1 = new CreateClient(1, "foo bar", "sub", new String[]{"foo, bar"}, rastgele_port);
+        CreateClient client1 = new CreateClient(4, "foo bar", "sub", new String[]{"foo, bar"}, rastgele_port);
         try {
             client1.connectServer().sendRequest();
         } catch (IOException e) {

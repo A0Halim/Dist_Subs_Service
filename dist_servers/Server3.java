@@ -5,7 +5,7 @@ import java.io.IOException;
 public class Server3 {
 
     public static void main(String[] args) {
-        GenerateServer server1 = new GenerateServer(5003);
+        GenerateServer server1 = new GenerateServer(3);
         try {
             server1.startServer();
         } catch (IOException e) {

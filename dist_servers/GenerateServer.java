@@ -28,6 +28,7 @@ public class GenerateServer {
         5001, 5002, 5003
     };
 
+    private int serverId;
     private int port;
     private int toleranceLevel;
     private boolean isCanStart = false;
@@ -38,8 +39,9 @@ public class GenerateServer {
     
     private Map<Long, Subscriber> clientsData;
 
-    GenerateServer(int port) {
-        this.port = port;
+    GenerateServer(int serverId) {
+        this.serverId = serverId;
+        this.port = ports[serverId - 1];
         this.clientsData = new TreeMap<Long, Subscriber>();
         this.serverSockets = new ArrayList<Socket>();
     }
@@ -185,18 +187,20 @@ public class GenerateServer {
         }
     }
     
-    private void handleAdmin(Socket clientSocket) throws InvalidProtocolBufferException, IOException, InterruptedException {
+    private void handleAdmin(Socket adminSocket) throws InvalidProtocolBufferException, IOException, InterruptedException {
         Message message;
+        Capacity recivedCapacity;
         if (isCanStart) {
             connectOtherServes(toleranceLevel);
             Thread.sleep(1000);
             connectCilents();
             System.out.println("Admin isteklerine yanıt verilebilir durumda");
             while (isCanStart) {
-                message = Message.parseFrom(get(clientSocket)) ;
-                if (message.getDemand() == Demand.CPCTY) {
+                message = Message.parseFrom(get(adminSocket));
+                recivedCapacity = Capacity.parseFrom(get(adminSocket));
+                if (message.getDemand() == Demand.CPCTY && recivedCapacity.getServerId() == serverId) {
                     Capacity capacity = createCapacity();
-                    send(capacity, clientSocket);
+                    send(capacity, adminSocket);
                 }
             }
         }
@@ -225,6 +229,6 @@ public class GenerateServer {
     }
 
     private Capacity createCapacity() {
-        return Capacity.newBuilder().setServerXStatus(clientsData.size()).setTimestamp(System.currentTimeMillis()/1000).build();
+        return Capacity.newBuilder().setServerXStatus(clientsData.size()).setTimestamp(System.currentTimeMillis()/1000).setServerId(serverId).build();
     }
 }

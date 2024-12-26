@@ -28,22 +28,36 @@ end
 
 # Sunucu bağlantıları
 
-def connect_to_servers(ports)
-  connections = []
+def connect_to_java_servers
+  connections = {}
 
-  ports.each do |port|
+  JAVA_SERVER_PORTS.each_with_index do |port, index|
+    server_id = index + 1 
     begin
       socket = TCPSocket.new(SERVER_HOST, port)
-      puts "Sunucu bağlantısı kuruldu port: #{port}"
-      connections << socket
+      puts "Java sunucu #{server_id} bağlantısı kuruldu port: #{port}"
+      connections[server_id] = socket
     rescue Errno::ECONNREFUSED
-      puts "#{port} portu ile bağlantı kurulamadı."
+      puts "Server #{server_id} (port: #{port}) ile bağlantı kurulamadı."
     rescue => e
-      puts "Sunucu bağlantısı sırasında bir hata oluştu: #{e.message}"
+      puts "Server #{server_id} bağlantısında hata: #{e.message}"
     end
   end
 
   connections
+end
+
+def connect_to_python
+  begin
+    socket = TCPSocket.new(SERVER_HOST, PYTHON_SERVER_PORT)
+    puts "Python sunucusu bağlantısı kuruldu port: #{PYTHON_SERVER_PORT}"
+    return socket
+  rescue Errno::ECONNREFUSED
+    puts "Python sunucusu (#{PYTHON_SERVER_PORT}) ile bağlantı kurulamadı."
+  rescue => e
+    puts "Python sunucusu bağlantısında hata: #{e.message}"
+  end
+  nil
 end
 
 # Config gönderme ve yanıt alma
@@ -68,19 +82,24 @@ def send_config(socket, fault_tolerance_level)
   end
 end
 
-# Capacity talebi gönderme ve yanıt alma
+# Server_id ataması, capacity talebi gönderme ve yanıt alma
 
-def request_capacity(socket)
+def request_capacity(socket, server_id)
   begin
     request = Message.new(demand: Demand::CPCTY)
     request_proto = request.to_proto
     socket.write([request_proto.size].pack("N") + request_proto)
     puts "Capacity talebi gönderildi"
 
+    cpcty = Capacity.new(server_id: server_id, timestamp: Time.now.to_i)
+    cpctyData = cpcty.to_proto
+    socket.write([cpctyData.size].pack("N") + cpctyData)
+    puts "Gönderildi" 
+
     response_length = socket.read(4).unpack("N")[0]
     response_proto = socket.read(response_length)
     response = Capacity.decode(response_proto)
-    puts "Capacity alındı: #{response.serverX_status}, #{response.timestamp}"
+    puts "Capacity alındı: Server#{response.server_id}, #{response.serverX_status}, #{response.timestamp}"
 
     response
   rescue IOError
@@ -92,11 +111,16 @@ end
 
 # Python sunucusuna kapasite gönderme
 
-def python_handler(socket, capacity)
+def python_handler(socket, capacity, server_id)
   begin
-    capacity_proto = capacity.to_proto
+    new_capacity = Capacity.new(
+      server_id: server_id,
+      serverX_status: capacity.serverX_status,
+      timestamp: capacity.timestamp
+    )
+    capacity_proto = new_capacity.to_proto
     socket.write([capacity_proto.size].pack("N") + capacity_proto)
-    puts "Python sunucusuna capacity nesnesi gönderildi: #{capacity.serverX_status}, #{capacity.timestamp}"
+    puts "Python sunucusuna capacity nesnesi gönderildi: Server#{server_id}"
   rescue IOError
     puts "Python sunucusuyla bağlantı hatası oluştu."
   rescue => e
@@ -109,23 +133,24 @@ end
 def server_request_handler(java_connections, python_connection, fault_tolerance_level)
   responses = []
 
-  java_connections.each do |connection|
+  java_connections.each_value do |connection|
     response = send_config(connection, fault_tolerance_level)
     responses << response if response
   end
 
   loop do
-    java_connections.each_with_index do |connection, index|
+    java_connections.each_with_index do |(server_id, connection), index|
+
       begin
+        puts "Java sunucu #{server_id} çalışıyor."
 
         if responses[index]&.response.to_s == "YEP"
-          capacity = request_capacity(connection)
-          
-          puts "Java sunucu #{index + 1} çalışıyor."
+          capacity = request_capacity(connection, server_id)
+
           if capacity
-            python_handler(python_connection, capacity)
+            python_handler(python_connection, capacity, server_id)
           else
-            puts "Java sunucu #{index + 1}'den kapasite bilgisi alınamadı."
+            puts "Java sunucu #{server_id}'den kapasite bilgisi alınamadı."
           end
 
         else
@@ -133,9 +158,9 @@ def server_request_handler(java_connections, python_connection, fault_tolerance_
         end
 
       rescue IOError
-        puts "Java sunucu #{index + 1} ile bağlantı kesildi."
+        puts "Java sunucu #{server_id} ile bağlantı kesildi."
       rescue => e
-        puts "Sunucu #{index + 1} işlem sırasında bir hata oluştu: #{e.message}"
+        puts "Sunucuda işlem sırasında bir hata oluştu: #{e.message}"
       end
     end
     sleep(5)
@@ -151,8 +176,8 @@ def connection_handler(java_connections, python_connection, fault_tolerance_leve
       sleep(5)
 
       loop do
-        python_connection = connect_to_servers([PYTHON_SERVER_PORT]).first
-        java_connections = connect_to_servers(JAVA_SERVER_PORTS)
+        python_connection = connect_to_python()
+        java_connections = connect_to_java_servers()
 
         if java_connections.any? && python_connection
           server_request_handler(java_connections, python_connection, fault_tolerance_level)
@@ -164,7 +189,7 @@ def connection_handler(java_connections, python_connection, fault_tolerance_leve
 end
 
 fault_tolerance_level = read_conf(CONF)
-python_connection = connect_to_servers([PYTHON_SERVER_PORT]).first
-java_connections = connect_to_servers(JAVA_SERVER_PORTS)
+python_connection = connect_to_python()
+java_connections = connect_to_java_servers()
 
 connection_handler(java_connections, python_connection, fault_tolerance_level)

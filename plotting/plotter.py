@@ -1,3 +1,4 @@
+
 import socket
 import struct
 from Capacity_pb2 import Capacity
@@ -19,12 +20,10 @@ server_capacity_data = {
 
 # Veri güncellemesi için kilit
 data_lock = threading.Lock()
-current_server = 'server1'
 start_time = time.time()
 
 # Kapasite verilerini işleyen fonksiyon
 def handle_capacity_data(connection):
-    global current_server
     while True:
         try:
             length_data = connection.recv(4)
@@ -42,20 +41,17 @@ def handle_capacity_data(connection):
                 continue
             
             # Sunucu bilgilerini ve zaman damgasını yazdır
-            print(f"Kapasite alındı - Sunucu: {current_server}, Durum: {capacity.serverX_status}, Zaman: {capacity.timestamp}")
+            print(f"Kapasite alındı - Sunucu: Server{capacity.server_id}, Durum: {capacity.serverX_status}, Zaman: {capacity.timestamp}")
             
             # Kapasite verilerini güncelle
             with data_lock:
                 current_time = time.time() - start_time
-                server_capacity_data[current_server].append((capacity.serverX_status, current_time))
-                
-                # Sunucu sırasını değiştir (döngüsel olarak)
-                if current_server == 'server1':
-                    current_server = 'server2'
-                elif current_server == 'server2':
-                    current_server = 'server3'
+                server_name = f"server{capacity.server_id}"
+                if server_name in server_capacity_data:
+                    server_capacity_data[server_name].append((capacity.serverX_status, current_time))
                 else:
-                    current_server = 'server1'
+                    print(f"Bilinmeyen sunucu ID: {capacity.server_id}")
+                    
         
         except Exception as e:
             print(f"Sunucuda işlem sırasında hata: {e}")

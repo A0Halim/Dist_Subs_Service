@@ -27,3 +27,48 @@ Son olarak değişiklikleri uygulayın. Bu şekilde protobufı kullanmak için v
 Run -> Start Debugging (F5) veya Run -> Run Without Debugging (Ctrl + F5)
 
 Yollarıyla serverları çalıştırabilirsiniz.
+
+### ServerX.java özellikleri
+
+- [ ] admin_client.rb ile başlama
+- [x] hata toleransı 1 prensibiyle çalışma
+- [x] hata toleransı 1 prensibiyle çalışma
+- [ ] ...
+- [ ] ...
+- [ ] Uranus
+- [ ] Neptune
+- [ ] Comet Haley
+
+### plotter.py özellikleri
+
+- [ ] Mercury
+- [x] Venus
+- [x] Earth (Orbit/Moon)
+- [x] Mars
+- [ ] Jupiter
+- [ ] Saturn
+- [ ] Uranus
+- [ ] Neptune
+- [ ] Comet Haley
+
+### admin.rb özellikleri
+
+- [x] Admin.rb client durumunda çalışmaktadır ve sırasıyla 5004(python), 5001, 5002 ve 5003(java) portlarına bağlanmaya çalışır ve en az 1 java sunucusu, python bağlantısı sağlandığı takdirde sunuculara veri göndermeye başlayabilir.
+- [x] Admin.rb ve sunucular arası veri gönderimi protobuf ile sağlanmaktadır ve veri gönderimi sırasında gönderilen veri, boyutuyla ile beraber gönderilmektedir.
+- [x] Admin.rb kendi makinesinde bulunan dist_subs.conf dosyasından fault_tolerance_level değerini okuyup bu değeri bağlantısı sağlanan her bir java sunucusuna da göndermektedir.
+- [x] Okunan değer yanında ayrıca java sunucularına başlama emrini de göndermektedir. Java sunucuları bu emri doğru almadığı takdirde sunucular çalışmaya başlamamaktadır.
+- [x] Java sunucuları ise bu başlama emrine karşılık olarak başlamaya hazır olup olmadıkları durumunu messsage tipinde protonun response "YEP" veya "NOP" değerleri ile admin.rb'ye bildirirler.
+- [x] Java sunucuları başlamaya hazır durumda ise admin.rb her bir sunucudan kapasite bilgisini ister. Daha sonra ise capacity tipinde bir nesne oluşturur ve bu nesneye server_id ataması yaparak bu proto nesnesini java serverlarına gönderir.
+- [x] Java sunuculuar yaptığı kontroller sonrasında admin.rb'nin yaptığı kapasite isteğine karşılık olarak kapasite bilgilerini admin.rb'ye gönderir.
+- [x] Admin.rb java sunucularından aldığı kapasite bilgilerini server_id bilgileriyle birlikte python sunucusuna gönderir.
+- [x] Hata durumları için gerekli try catch mekanizmaları oluşturulmuştur.
+
+### Ekip üyeleri
+
+- 22060388, Ömer Faruk DERİN
+- Numara, İsim
+- Numara, İsim
+- Numara, İsim
+
+### Sunum Videosu Linki
+

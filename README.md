@@ -61,7 +61,7 @@ Yollarıyla serverları çalıştırabilirsiniz.
 - [x] Java sunucuları başlamaya hazır durumda ise admin.rb her bir sunucudan kapasite bilgisini ister. Daha sonra ise capacity tipinde bir nesne oluşturur ve bu nesneye server_id ataması yaparak bu proto nesnesini java serverlarına gönderir.
 - [x] Java sunuculuar yaptığı kontroller sonrasında admin.rb'nin yaptığı kapasite isteğine karşılık olarak kapasite bilgilerini admin.rb'ye gönderir.
 - [x] Admin.rb java sunucularından aldığı kapasite bilgilerini server_id bilgileriyle birlikte python sunucusuna gönderir.
-- [x] Hata durumları için gerekli try catch mekanizmaları oluşturulmuştur.
+- [x] Hata durumları için gerekli begin rescue mekanizmaları oluşturulmuştur.
 
 ### Ekip üyeleri
 

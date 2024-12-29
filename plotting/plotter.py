@@ -1,4 +1,3 @@
-
 import socket
 import struct
 from Capacity_pb2 import Capacity

@@ -41,15 +41,15 @@ Yollarıyla serverları çalıştırabilirsiniz.
 
 ### plotter.py özellikleri
 
-- [ ] Mercury
-- [x] Venus
-- [x] Earth (Orbit/Moon)
-- [x] Mars
-- [ ] Jupiter
-- [ ] Saturn
-- [ ] Uranus
-- [ ] Neptune
-- [ ] Comet Haley
+- Plotter.py, bir TCP sunucusu olarak çalışmaktadır ve 5004 portunda gelen bağlantıları dinlemektedir.
+- Admin.rb'den gelen veri, boyutuyla beraber gönderilmekte ve Capacity.proto formatına uygun olarak alınmaktadır.
+- Alınan veriler, her sunucuya ait bir kuyrukta saklanır.
+- Kuyruklar, veri alındıkça güncellenir ve her bir sunucu için en son veriler saklanır.
+- Sunucu adı, Capacity mesajındaki server_id ile belirlenir ve her sunucuya ait kapasite verileri ayrı ayrı işlenir.
+- Plotter.py, bu veriyi çözümledikten sonra bir grafik üzerinde kapasite durumlarını görselleştirmektedir.
+- Sunucular, farklı renklerle temsil edilmektedir.
+- Grafik gerçek zamanlı olarak güncellenmektedir.
+- Hata durumları için gerekli try-except mekanizmaları oluşturulmuştur.
 
 ### admin.rb özellikleri
 
@@ -66,7 +66,7 @@ Yollarıyla serverları çalıştırabilirsiniz.
 ### Ekip üyeleri
 
 - 22060388, Ömer Faruk DERİN
-- Numara, İsim
+- 22060662, Mahmut ÖZTÜRK
 - Numara, İsim
 - Numara, İsim
 

@@ -41,15 +41,14 @@ Yollarıyla serverları çalıştırabilirsiniz.
 
 ### plotter.py özellikleri
 
-- Plotter.py, bir TCP sunucusu olarak çalışmaktadır ve 5004 portunda gelen bağlantıları dinlemektedir.
-- Admin.rb'den gelen veri, boyutuyla beraber gönderilmekte ve Capacity.proto formatına uygun olarak alınmaktadır.
-- Alınan veriler, her sunucuya ait bir kuyrukta saklanır.
-- Kuyruklar, veri alındıkça güncellenir ve her bir sunucu için en son veriler saklanır.
+- Plotter.py, 5004 portunda bir TCP sunucusu olarak çalışır ve Admin.rb'den gelen bağlantıları dinler.
+- Admin.rb, veriyi boyutuyla birlikte gönderir ve bu veri, Capacity.proto formatına uygun olarak alınır.
+- Alınan veriler, her bir sunucuya ait ayrı bir kuyrukta saklanır. Veri alındıkça kuyruklar güncellenir ve her sunucu için en son veriler korunur.
 - Sunucu adı, Capacity mesajındaki server_id ile belirlenir ve her sunucuya ait kapasite verileri ayrı ayrı işlenir.
-- Plotter.py, bu veriyi çözümledikten sonra bir grafik üzerinde kapasite durumlarını görselleştirmektedir.
-- Sunucular, farklı renklerle temsil edilmektedir.
-- Grafik gerçek zamanlı olarak güncellenmektedir.
-- Hata durumları için gerekli try-except mekanizmaları oluşturulmuştur.
+- Plotter.py, alınan veriyi çözümledikten sonra matplotlib ile gerçek zamanlı bir grafik üzerinde kapasite durumlarını görselleştirir.
+- Sunucular, her biri için farklı renklerle temsil edilir. Bu sayede her sunucu, görselde açıkça ayırt edilebilir.
+- Grafik sürekli olarak güncellenir, böylece sunuculardan alınan yeni veriler görselleştirilir.
+- Hata durumları için gerekli try-except blokları oluşturulmuştur.
 
 ### admin.rb özellikleri
 

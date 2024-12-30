@@ -6,7 +6,7 @@ Plotting ve java serverları açıldıktan sonra admin client çalıştırılmal
 
 ## Programda neler oluyor
 
-Admin öncelikle plottera bağlanmayı deniyor bağlanamazsa bu işlem tekrarlanıyor. Bir sonraki işlemi serverlara bağlanmak oluyor. Serverlar, başlama emrini aldıktan sonra birbirlerine bağlanmaları için 3 saniye müddet tanınmışır. Bu surenin sonunda bağlanabildi ya da bağlanamadı diğer serverlara bağlanma denemesi kesilir. Server bağlantıları gerçekleştikten sonra serverlar, client isteklerini işleyebilir ve admin isteklerine yanıt verebilir bir durumda oluyor. Clientlar tek bir istek göndericek şekilde tasarlanmışır farklı istekler için manuel düzenleme gereklidir. Tüm program çalışır durumdadır.
+Admin öncelikle plottera bağlanmayı deniyor bağlanamazsa bu işlem tekrarlanıyor. Bir sonraki işlemi serverlara bağlanmak oluyor. Serverlar, başlama emrini aldıktan sonra birbirlerine bağlanmaları için 3 saniye müddet tanınmışır. Bu surenin sonunda bağlanabildi ya da bağlanamadı diğer serverlara bağlanma denemesi kesilir. Server bağlantıları gerçekleştikten sonra serverlar, client isteklerini işleyebilir ve admin isteklerine yanıt verebilir bir durumda oluyor. Clientlar tek bir istek göndericek şekilde tasarlanmışır farklı istekler için manuel düzenleme gereklidir ve serverlarda tek bir bağlantıdan tek bir istek alıcak şekilde tasarlanmıştır. Tüm program çalışır durumdadır.
 
 ## Olası sorunlar
 
@@ -30,25 +30,30 @@ Yollarıyla serverları çalıştırabilirsiniz.
 
 ### ServerX.java özellikleri
 
-- [ ] admin_client.rb ile başlama
-- [x] hata toleransı 1 prensibiyle çalışma
-- [x] hata toleransı 1 prensibiyle çalışma
-- [ ] ...
-- [ ] ...
-- [ ] Uranus
-- [ ] Neptune
-- [ ] Comet Haley
+- [x] Admin_client.rb den başlama emri alalındıktan sonra çalımaya başlama
+- [x] adminden gelen isteğin başarılı yada başarısız donuçlandığında dair geri dönüş
+- [x] Hata toleransı 0 prensibiyle çalışma
+- [x] Hata toleransı 1 prensibiyle çalışma
+- [x] Hata toleransı 2 prensibiyle çalışma
+- [x] Tüm iletişim işlemleri için proto kullanımı
+- [x] Serverlardan birinin bağlantısı koptuğununda diğer serverlar çalışmaya devam edebilir
+- [x] Hata yönetimi
+- [x] Clientler SUB ve DEL işlemlerini gerçekleştirebilir
+- [x] Adminden gelen kapasite isteklerine yanıt verebilir
+- [x] Gelen isteklerin sunuculardan mı Clientlerdan mı geldiğinin ayrımını yapabilme
+- [x] Serverlar birbirleri arasında arası yedekleme yapabilir
+- [x] Senkronizasyon sağlanmıştır aynıanda pek çok isteğe yanıt verebilir
 
 ### plotter.py özellikleri
 
-- Plotter.py, 5004 portunda bir TCP sunucusu olarak çalışır ve Admin.rb'den gelen bağlantıları dinler.
-- Admin.rb, veriyi boyutuyla birlikte gönderir ve bu veri, Capacity.proto formatına uygun olarak alınır.
-- Alınan veriler, her bir sunucuya ait ayrı bir kuyrukta saklanır. Veri alındıkça kuyruklar güncellenir ve her sunucu için en son veriler korunur.
-- Sunucu adı, Capacity mesajındaki server_id ile belirlenir ve her sunucuya ait kapasite verileri ayrı ayrı işlenir.
-- Plotter.py, alınan veriyi çözümledikten sonra matplotlib ile gerçek zamanlı bir grafik üzerinde kapasite durumlarını görselleştirir.
-- Sunucular, her biri için farklı renklerle temsil edilir. Bu sayede her sunucu, görselde açıkça ayırt edilebilir.
-- Grafik sürekli olarak güncellenir, böylece sunuculardan alınan yeni veriler görselleştirilir.
-- Hata durumları için gerekli try-except blokları oluşturulmuştur.
+- [x] Plotter.py, 5004 portunda bir TCP sunucusu olarak çalışır ve Admin.rb'den gelen bağlantıları dinler.
+- [x] Admin.rb, veriyi boyutuyla birlikte gönderir ve bu veri, Capacity.proto formatına uygun olarak alınır.
+- [x] Alınan veriler, her bir sunucuya ait ayrı bir kuyrukta saklanır. Veri alındıkça kuyruklar güncellenir ve her sunucu için en son veriler korunur.
+- [x] Sunucu adı, Capacity mesajındaki server_id ile belirlenir ve her sunucuya ait kapasite verileri ayrı ayrı işlenir.
+- [x] Plotter.py, alınan veriyi çözümledikten sonra matplotlib ile gerçek zamanlı bir grafik üzerinde kapasite durumlarını görselleştirir.
+- [x] Sunucular, her biri için farklı renklerle temsil edilir. Bu sayede her sunucu, görselde açıkça ayırt edilebilir.
+- [x] Grafik sürekli olarak güncellenir, böylece sunuculardan alınan yeni veriler görselleştirilir.
+- [x] Hata durumları için gerekli try-except blokları oluşturulmuştur.
 
 ### admin.rb özellikleri
 
@@ -66,7 +71,7 @@ Yollarıyla serverları çalıştırabilirsiniz.
 
 - 22060388, Ömer Faruk DERİN
 - 22060662, Mahmut ÖZTÜRK
-- Numara, İsim
+- 22060339, Abdulhalim BAYRAK
 - Numara, İsim
 
 ### Sunum Videosu Linki

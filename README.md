@@ -28,6 +28,15 @@ Run -> Start Debugging (F5) veya Run -> Run Without Debugging (Ctrl + F5)
 
 Yollarıyla serverları çalıştırabilirsiniz.
 
+### Client özellikleri
+
+- [x] Client.java dosyasında, aynı pakette olan CreateClient.java dosyasının içindeki CreateClient constructoruna parametre yollanarak client oluşturulur.
+- [x] Constructor'a yollanan parametreler: [Id, nameSurname, TALEP (sub or del), AllInterest, serverNo].
+- [x] ServerNo parametresi Client.javadan random olarak yollanır. Eğer serverNo parametrede verilmezse overload constructor metodunda varsayılan olarak client, random bir sunucuya bağlatılır.
+- [x] Parametrelerden girilen abone bilgileri, rastgele seçilen sunucuya talep (sub or del) ile birlikte yollanır.
+- [x] Abonelik bilgileri yollandıktan sonra feedback olarak "Abone bilgisi sunucuya gönderildi" mesajı kullanıcıya gösterilir.
+- [x] Sunucudan da client'e feedback mesajı yollanır.
+
 ### ServerX.java özellikleri
 
 - [x] Admin_client.rb den başlama emri alalındıktan sonra çalımaya başlama
@@ -72,7 +81,7 @@ Yollarıyla serverları çalıştırabilirsiniz.
 - 22060388, Ömer Faruk DERİN
 - 22060662, Mahmut ÖZTÜRK
 - 22060339, Abdulhalim BAYRAK
-- Numara, İsim
+- 22060371, Batuhan AYDIN
 
 ### Sunum Videosu Linki
 
